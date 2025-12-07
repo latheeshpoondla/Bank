@@ -1,0 +1,66 @@
+#include <iostream>
+#include <fstream>
+#include <unordered_map>
+
+using namespace std;
+
+class Bank{
+    //Constructor(IFSC) - loadData()
+    unordered_map<int, Account> accounts;
+    //IFSC - (string)
+    //Bank Name
+
+    //*static features*
+    //deposit
+    //withdraw
+    //store all Accounts in files
+
+    //store all transactionslog for all accounts separate(text based, .log file) 
+    // Format: AccountID | Type | Amount | Time..etc
+
+    //retrieve accounts from file
+    //getMonthlyStatement(pdf/csv) (e.g. Statement_Oct2023.csv)
+    //create account
+    //close account
+    //modify account
+    //getAccountByID
+    //searchByName
+    //priorityQueue
+    //showTopTransactions
+
+    //loadData() - (runs the startup for Bank - accounts.dat to map<>) 
+    //              + refill priority queue using transaction***.log file new trans. objects.
+
+    //saveData() - (updates accounts.dat with updated map<>)
+};
+
+class Account{
+    //Name
+    //ID
+    //Bank IFSC
+    //status
+    //Balance
+    //DOB
+    //TransactionsHistory <vector> - all past transactions
+    //username
+    //password
+
+    //*static features*
+    //password check
+};
+
+class Transaction{
+    //Transaction Id
+    //Account Id
+    //Ammount
+    //Trans. Type
+    //timestamp
+
+    //*static features*
+    //operator overloading for priority queue comparision
+};
+
+int main(){
+    
+    return 0;
+}
