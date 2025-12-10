@@ -4,6 +4,21 @@
 
 using namespace std;
 
+class Account{
+    //Name
+    //ID
+    //Bank IFSC
+    //status
+    //Balance
+    //DOB
+    //TransactionsHistory <vector> - all past transactions
+    //username
+    //password
+
+    //*static features*
+    //password check
+};
+
 class Bank{
     //Constructor(IFSC) - loadData()
     unordered_map<int, Account> accounts;
@@ -32,21 +47,6 @@ class Bank{
     //              + refill priority queue using transaction***.log file new trans. objects.
 
     //saveData() - (updates accounts.dat with updated map<>)
-};
-
-class Account{
-    //Name
-    //ID
-    //Bank IFSC
-    //status
-    //Balance
-    //DOB
-    //TransactionsHistory <vector> - all past transactions
-    //username
-    //password
-
-    //*static features*
-    //password check
 };
 
 class Transaction{
