@@ -1,22 +1,26 @@
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
 class Account{
-    //Name
-    //ID
-    //Bank IFSC
-    //status
-    //Balance
-    //DOB
+    string Name, ID, IFSC, status, username, password;
+    long int Balance;
+    struct dob {
+        int year, month, day;
+    };
+    vector<Transaction> transactionHistory;
     //TransactionsHistory <vector> - all past transactions
-    //username
-    //password
+public:
 
-    //*static features*
-    //password check
+    bool passwordCheck(string pwd){
+        if(this->password == pwd)
+            return true;
+        else
+            return false;
+    }
 };
 
 class Bank{
