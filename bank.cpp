@@ -54,14 +54,20 @@ class Bank{
 };
 
 class Transaction{
-    //Transaction Id
-    //Account Id
-    //Ammount
-    //Trans. Type
-    //timestamp
+    string ID, accountID, type;
+    long int Ammount;
+    struct timestamp{
+        int day, month, year, hours, minutes, seconds;
+    };
 
-    //*static features*
-    //operator overloading for priority queue comparision
+public:
+    
+    friend bool operator> (Transaction& t1, Transaction& t2){
+        return t1.Ammount > t2.Ammount;
+    }
+    friend bool operator< (Transaction& t1, Transaction& t2){
+        return t1.Ammount < t2.Ammount;
+    }
 };
 
 int main(){
