@@ -6,7 +6,7 @@
 using namespace std;
 
 class Account{
-    string Name, ID, IFSC, status, username, password;
+    string Name, ID, IFSC, status, password;
     long int Balance;
     struct dob {
         int year, month, day;
@@ -14,7 +14,7 @@ class Account{
     vector<Transaction> transactionHistory;
     //TransactionsHistory <vector> - all past transactions
 public:
-
+    //friend class Bank;
     bool passwordCheck(string pwd){
         if(this->password == pwd)
             return true;
@@ -24,14 +24,50 @@ public:
 };
 
 class Bank{
-    //Constructor(IFSC) - loadData()
-    unordered_map<int, Account> accounts;
-    //IFSC - (string)
-    //Bank Name
+    unordered_map<string, Account> accounts;
+public:
+    string IFSC, Name;
+    Bank(string IFSC, string Name):IFSC(IFSC), Name(Name){}
 
     //*static features*
-    //deposit
-    //withdraw
+    bool deposit(string toID){
+        Account toA;
+        try{
+            toA = accounts[toID];
+        }
+        catch(exception& e){
+            return false;
+        }
+        int amm;
+        cout<<"Enter Amount:";
+        cin>>amm;
+        toA.Balance+=amm;
+        return true;
+    }
+
+    bool withdraw(string ID){
+        Account a = accounts[ID];
+        try{
+            a = accounts[ID];
+        }
+        catch(exception& e){
+            return false;
+        }
+        int amm;
+        string pwd;
+        cout<<"Enter Password";
+        cin>>pwd;
+        if(a.passwordCheck(pwd)){
+            cout<<"Enter Amount";
+            cin>>amm;
+            if(a.Balance>=amm)
+                a.Balance -= amm;
+            else
+                return false;
+        }
+        return true;
+    }
+    //check balance
     //store all Accounts in files
 
     //store all transactionslog for all accounts separate(text based, .log file) 
