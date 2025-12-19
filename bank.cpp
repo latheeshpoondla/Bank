@@ -2,6 +2,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -10,11 +11,40 @@ class Account{
     long int Balance;
     struct dob {
         int year, month, day;
-    };
+    }dob;
     vector<Transaction> transactionHistory;
     //TransactionsHistory <vector> - all past transactions
 public:
     friend class Bank;
+
+    Account(string IFSC):IFSC(IFSC){
+        cout<<"Enter Full Name: ";
+        cin>>this->Name;
+        cout<<"Set Password: ";
+        cin>>this->password;
+        string DOB;
+        cout<<"Enter Date of Birth(DD/MM/YYYY): ";
+        cin>>DOB;
+        char slash;
+        stringstream ss(DOB);
+        ss>>this->dob.day>>slash>>this->dob.month>>slash>>this->dob.year;
+        this->status = "Open Savings";
+        this->ID = generateID();
+    }
+
+    string generateID(){
+        fstream file("/data/LastAccountID.dat", ios::in | ios::out | ios::binary);
+        long int ID=0;
+        file.read(reinterpret_cast<char*>(&ID), sizeof(ID));
+        
+        if(ID)
+            ID++;
+        else
+            ID = 1000000000000000;
+        file.write(reinterpret_cast<const char*>(&ID), sizeof(ID));
+        return to_string(ID);
+    }
+    
     bool passwordCheck(string pwd){
         if(this->password == pwd)
             return true;
@@ -174,14 +204,20 @@ public:
 };
 
 class Transaction{
-    //Transaction Id
-    //Account Id
-    //Ammount
-    //Trans. Type
-    //timestamp
+    string ID, accountID, type;
+    long int Ammount;
+    struct timestamp{
+        int day, month, year, hours, minutes, seconds;
+    };
 
-    //*static features*
-    //operator overloading for priority queue comparision
+public:
+    
+    friend bool operator> (Transaction& t1, Transaction& t2){
+        return t1.Ammount > t2.Ammount;
+    }
+    friend bool operator< (Transaction& t1, Transaction& t2){
+        return t1.Ammount < t2.Ammount;
+    }
 };
 
 int main(){
