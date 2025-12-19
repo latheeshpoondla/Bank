@@ -15,6 +15,7 @@ class Account{
     vector<Transaction> transactionHistory;
     //TransactionsHistory <vector> - all past transactions
 public:
+    friend class Bank;
 
     Account(string IFSC):IFSC(IFSC){
         cout<<"Enter Full Name: ";
@@ -53,14 +54,122 @@ public:
 };
 
 class Bank{
-    //Constructor(IFSC) - loadData()
-    unordered_map<int, Account> accounts;
-    //IFSC - (string)
-    //Bank Name
+    unordered_map<string, Account> accounts;
+public:
+    string IFSC, Name;
+    Bank(string IFSC, string Name):IFSC(IFSC), Name(Name){}
 
     //*static features*
-    //deposit
-    //withdraw
+    bool deposit(string toID){
+        Account toA;
+        if(!getAccountByID(toA, toID)){
+            cout<<"Account Not Found...!"<<endl;
+            return false;
+        }
+        if(toA.status == "Closed"){
+            cout<<"Account Closed"<<endl;
+            return false;
+        }
+        int amm;
+        cout<<"Enter Amount:";
+        cin>>amm;
+        toA.Balance+=amm;
+        return true;
+    }
+
+    bool withdraw(string ID){
+        Account a;
+        if(!getAccountByID(a, ID)){
+            cout<<"Account Not Found...!"<<endl;
+            return false;
+        }
+        if(a.status == "Closed"){
+            cout<<"Account Closed"<<endl;
+            return false;
+        }
+        string pwd;
+        cout<<"Enter Password";
+        cin>>pwd;
+        if(a.passwordCheck(pwd)){
+            int amm;
+            cout<<"Enter Amount";
+            cin>>amm;
+            if(a.Balance>=amm)
+                a.Balance -= amm;
+            else{
+                cout<<"Insuffient Balance..!"<<endl;
+                return false;
+            }
+        }
+        else{
+            cout<<"Incorrect Password..!"<<endl;
+            return false;
+        }
+        return true;
+    }
+    
+    bool checkBalance(string ID){
+        Account a;
+        if(!getAccountByID(a, ID)){
+            cout<<"Account Not Found...!"<<endl;
+            return false;
+        }
+        if(a.status == "Closed"){
+            cout<<"Account Closed"<<endl;
+            return false;
+        }
+        string pwd;
+        cout<<"Enter Password: ";
+        cin>>pwd;
+        if(a.passwordCheck(pwd))
+            cout<<"Balance: "<<a.Balance<<endl;
+        else{
+            cout<<"Incorrect Password..!"<<endl;
+            return false;
+        }
+        return true;
+    }
+    
+    bool transfer(string toID, string fromID){
+        Account toA, fromA;
+        if(!getAccountByID(toA, toID)){
+            cout<<"Receiver Account Not Found...!"<<endl;
+            return false;
+        }
+        if(!getAccountByID(fromA, fromID)){
+            cout<<"Sender Account Not Found...!"<<endl;
+            return false;
+        }
+        if(toA.status == "Closed"){
+            cout<<"Receiver-Account Closed"<<endl;
+            return false;
+        }
+        if(fromA.status == "Closed"){
+            cout<<"Sender-Account Closed"<<endl;
+            return false;
+        }
+        string pwd;
+        cout<<"Enter Password: ";
+        cin>>pwd;
+        if(fromA.passwordCheck(pwd)){
+            int amm;
+            cout<<"Enter Amount: ";
+            cin>>amm;
+            if(fromA.Balance>=amm){
+                fromA.Balance -= amm;
+                toA.Balance += amm;
+            }
+            else{
+                cout<<"Insuffient Balance..!"<<endl;
+                return false;
+            }
+        }
+        else{
+            cout<<"Incorrect Password..!"<<endl;
+            return false;
+        }
+        return true;
+    }
     //store all Accounts in files
 
     //store all transactionslog for all accounts separate(text based, .log file) 
@@ -68,10 +177,22 @@ class Bank{
 
     //retrieve accounts from file
     //getMonthlyStatement(pdf/csv) (e.g. Statement_Oct2023.csv)
-    //create account
+    
+    bool createAccount(){
+        Account a(IFSC);
+        accounts[a.ID] = a;
+    }
     //close account
     //modify account
-    //getAccountByID
+    bool getAccountByID(Account& a, string ID){
+        try{
+            a = accounts[ID];
+        }
+        catch (exception& e){
+            return false;
+        }
+        return true;
+    }
     //searchByName
     //priorityQueue
     //showTopTransactions
