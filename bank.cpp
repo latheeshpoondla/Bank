@@ -32,11 +32,12 @@ public:
     //*static features*
     bool deposit(string toID){
         Account toA;
-        try{
-            toA = accounts[toID];
+        if(!getAccountByID(toA, toID)){
+            cout<<"Account Not Found...!"<<endl;
+            return false;
         }
-        catch (exception& e){
-            cout<<"Account not found! or Incorrect!"<<endl;
+        if(toA.status == "Closed"){
+            cout<<"Account Closed"<<endl;
             return false;
         }
         int amm;
@@ -48,11 +49,12 @@ public:
 
     bool withdraw(string ID){
         Account a;
-        try{
-            a = accounts[ID];
+        if(!getAccountByID(a, ID)){
+            cout<<"Account Not Found...!"<<endl;
+            return false;
         }
-        catch (exception& e){
-            cout<<"Account not found! or Incorrect!"<<endl;
+        if(a.status == "Closed"){
+            cout<<"Account Closed"<<endl;
             return false;
         }
         string pwd;
@@ -78,11 +80,12 @@ public:
     
     bool checkBalance(string ID){
         Account a;
-        try{
-            a = accounts[ID];
+        if(!getAccountByID(a, ID)){
+            cout<<"Account Not Found...!"<<endl;
+            return false;
         }
-        catch (exception& e){
-            cout<<"Account not found! or Incorrect!"<<endl;
+        if(a.status == "Closed"){
+            cout<<"Account Closed"<<endl;
             return false;
         }
         string pwd;
@@ -99,12 +102,20 @@ public:
     
     bool transfer(string toID, string fromID){
         Account toA, fromA;
-        try{
-            toA = accounts[toID];
-            fromA = accounts[fromID];
+        if(!getAccountByID(toA, toID)){
+            cout<<"Receiver Account Not Found...!"<<endl;
+            return false;
         }
-        catch(exception& e){
-            cout<<"Account not found! or Incorrect!"<<endl;
+        if(!getAccountByID(fromA, fromID)){
+            cout<<"Sender Account Not Found...!"<<endl;
+            return false;
+        }
+        if(toA.status == "Closed"){
+            cout<<"Receiver-Account Closed"<<endl;
+            return false;
+        }
+        if(fromA.status == "Closed"){
+            cout<<"Sender-Account Closed"<<endl;
             return false;
         }
         string pwd;
@@ -137,12 +148,21 @@ public:
     //retrieve accounts from file
     //getMonthlyStatement(pdf/csv) (e.g. Statement_Oct2023.csv)
     
-    void createAccount(){
-        
+    bool createAccount(){
+        Account a(IFSC);
+        accounts[a.ID] = a;
     }
     //close account
     //modify account
-    //getAccountByID
+    bool getAccountByID(Account& a, string ID){
+        try{
+            a = accounts[ID];
+        }
+        catch (exception& e){
+            return false;
+        }
+        return true;
+    }
     //searchByName
     //priorityQueue
     //showTopTransactions
