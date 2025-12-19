@@ -14,7 +14,7 @@ class Account{
     vector<Transaction> transactionHistory;
     //TransactionsHistory <vector> - all past transactions
 public:
-    //friend class Bank;
+    friend class Bank;
     bool passwordCheck(string pwd){
         if(this->password == pwd)
             return true;
@@ -35,7 +35,8 @@ public:
         try{
             toA = accounts[toID];
         }
-        catch(exception& e){
+        catch (exception& e){
+            cout<<"Account not found! or Incorrect!"<<endl;
             return false;
         }
         int amm;
@@ -46,28 +47,88 @@ public:
     }
 
     bool withdraw(string ID){
-        Account a = accounts[ID];
+        Account a;
         try{
             a = accounts[ID];
         }
-        catch(exception& e){
+        catch (exception& e){
+            cout<<"Account not found! or Incorrect!"<<endl;
             return false;
         }
-        int amm;
         string pwd;
         cout<<"Enter Password";
         cin>>pwd;
         if(a.passwordCheck(pwd)){
+            int amm;
             cout<<"Enter Amount";
             cin>>amm;
             if(a.Balance>=amm)
                 a.Balance -= amm;
-            else
+            else{
+                cout<<"Insuffient Balance..!"<<endl;
                 return false;
+            }
+        }
+        else{
+            cout<<"Incorrect Password..!"<<endl;
+            return false;
         }
         return true;
     }
-    //check balance
+    
+    bool checkBalance(string ID){
+        Account a;
+        try{
+            a = accounts[ID];
+        }
+        catch (exception& e){
+            cout<<"Account not found! or Incorrect!"<<endl;
+            return false;
+        }
+        string pwd;
+        cout<<"Enter Password: ";
+        cin>>pwd;
+        if(a.passwordCheck(pwd))
+            cout<<"Balance: "<<a.Balance<<endl;
+        else{
+            cout<<"Incorrect Password..!"<<endl;
+            return false;
+        }
+        return true;
+    }
+    
+    bool transfer(string toID, string fromID){
+        Account toA, fromA;
+        try{
+            toA = accounts[toID];
+            fromA = accounts[fromID];
+        }
+        catch(exception& e){
+            cout<<"Account not found! or Incorrect!"<<endl;
+            return false;
+        }
+        string pwd;
+        cout<<"Enter Password: ";
+        cin>>pwd;
+        if(fromA.passwordCheck(pwd)){
+            int amm;
+            cout<<"Enter Amount: ";
+            cin>>amm;
+            if(fromA.Balance>=amm){
+                fromA.Balance -= amm;
+                toA.Balance += amm;
+            }
+            else{
+                cout<<"Insuffient Balance..!"<<endl;
+                return false;
+            }
+        }
+        else{
+            cout<<"Incorrect Password..!"<<endl;
+            return false;
+        }
+        return true;
+    }
     //store all Accounts in files
 
     //store all transactionslog for all accounts separate(text based, .log file) 
@@ -75,7 +136,10 @@ public:
 
     //retrieve accounts from file
     //getMonthlyStatement(pdf/csv) (e.g. Statement_Oct2023.csv)
-    //create account
+    
+    void createAccount(){
+        
+    }
     //close account
     //modify account
     //getAccountByID
