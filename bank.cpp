@@ -16,10 +16,7 @@ class Account{
     //TransactionsHistory <vector> - all past transactions
 public:
     friend class Bank;
-    Account(){
-        cerr<<"IFSCE Code of Bank Required"<<endl;
-        exit(1);
-    }
+    Account(){}
 
     Account(string IFSC):IFSC(IFSC){
         cout<<"Enter Full Name: ";
@@ -32,7 +29,7 @@ public:
         char slash;
         stringstream ss(DOB);
         ss>>this->dob.day>>slash>>this->dob.month>>slash>>this->dob.year;
-        this->status = "Open Savings";
+        this->status = "Open";
         this->ID = generateID();
     }
 
@@ -44,7 +41,7 @@ public:
         if(ID)
             ID++;
         else
-            ID = 1000000000000000;
+            ID = 10000000000;
         file.write(reinterpret_cast<const char*>(&ID), sizeof(ID));
         return to_string(ID);
     }
@@ -61,6 +58,10 @@ class Bank{
     unordered_map<string, Account> accounts;
 public:
     string IFSC, Name;
+    Bank(){
+        cerr<<"Invalid Bank Details..!";
+        exit(1);
+    }
     Bank(string IFSC, string Name):IFSC(IFSC), Name(Name){}
 
     //*static features*
@@ -70,14 +71,16 @@ public:
             cout<<"Account Not Found...!"<<endl;
             return false;
         }
-        if(toA.status == "Closed"){
-            cout<<"Account Closed"<<endl;
+        if(toA.status != "Open"){
+            cout<<"Account Closed or Invalid"<<endl;
             return false;
         }
-        int amm;
+        long int amm;
         cout<<"Enter Amount:";
         cin>>amm;
         toA.Balance+=amm;
+        Transaction t(toID, "Deposit", amm);
+        toA.transactionHistory.push_back(t);
         return true;
     }
 
@@ -87,15 +90,15 @@ public:
             cout<<"Account Not Found...!"<<endl;
             return false;
         }
-        if(a.status == "Closed"){
-            cout<<"Account Closed"<<endl;
+        if(a.status != "Open"){
+            cout<<"Account Closed or Invalid"<<endl;
             return false;
         }
         string pwd;
         cout<<"Enter Password";
         cin>>pwd;
+        long int amm;
         if(a.passwordCheck(pwd)){
-            int amm;
             cout<<"Enter Amount";
             cin>>amm;
             if(a.Balance>=amm)
@@ -109,6 +112,8 @@ public:
             cout<<"Incorrect Password..!"<<endl;
             return false;
         }
+        Transaction t(ID, "Withdraw", amm);
+        a.transactionHistory.push_back(t);
         return true;
     }
     
@@ -118,8 +123,8 @@ public:
             cout<<"Account Not Found...!"<<endl;
             return false;
         }
-        if(a.status == "Closed"){
-            cout<<"Account Closed"<<endl;
+        if(a.status != "Open"){
+            cout<<"Account Closed or Invalid"<<endl;
             return false;
         }
         string pwd;
@@ -144,19 +149,19 @@ public:
             cout<<"Sender Account Not Found...!"<<endl;
             return false;
         }
-        if(toA.status == "Closed"){
-            cout<<"Receiver-Account Closed"<<endl;
+        if(toA.status != "Open"){
+            cout<<"Receiver-Account Closed or Invalid"<<endl;
             return false;
         }
-        if(fromA.status == "Closed"){
-            cout<<"Sender-Account Closed"<<endl;
+        if(fromA.status != "Open"){
+            cout<<"Sender-Account Closed or Invalid"<<endl;
             return false;
         }
         string pwd;
         cout<<"Enter Password: ";
         cin>>pwd;
+        long int amm;
         if(fromA.passwordCheck(pwd)){
-            int amm;
             cout<<"Enter Amount: ";
             cin>>amm;
             if(fromA.Balance>=amm){
@@ -172,59 +177,110 @@ public:
             cout<<"Incorrect Password..!"<<endl;
             return false;
         }
+        Transaction t(fromID, toID, "Transfer", amm);
+        toA.transactionHistory.push_back(t);
         return true;
     }
     //store all Accounts in files
+    //saveData() - (updates accounts.dat with updated map<>)
+    void saveData(){
+
+    }
+    //retrieve accounts from file
+    //loadData() - (runs the startup for Bank - accounts.dat to map<>) 
+    //              + refill priority queue using transaction***.log file new trans. objects.
+    void loadData(){
+
+    }
 
     //store all transactionslog for all accounts separate(text based, .log file) 
     // Format: AccountID | Type | Amount | Time..etc
+    void transactionsLog(){
 
-    //retrieve accounts from file
+    }
     //getMonthlyStatement(pdf/csv) (e.g. Statement_Oct2023.csv)
+
     
     bool createAccount(){
         Account a(IFSC);
         accounts[a.ID] = a;
+        return true;
     }
     //close account
+    bool closeAccount(){
+
+    }
     //modify account
-    bool getAccountByID(Account& a, string ID){
+    bool modifyAccount(){
+
+    }
+
+    bool getAccountByID(Account&a, string ID){
         try{
             a = accounts[ID];
         }
         catch (exception& e){
             return false;
         }
+
         return true;
     }
-    //searchByName
-    //priorityQueue
-    //showTopTransactions
 
-    //loadData() - (runs the startup for Bank - accounts.dat to map<>) 
-    //              + refill priority queue using transaction***.log file new trans. objects.
+    //priorityQueue + showTopTransactions
 
-    //saveData() - (updates accounts.dat with updated map<>)
+    ~Bank(){
+        saveData();
+    }
 };
 
 class Transaction{
-    string ID, accountID, type;
-    long int Ammount;
+    string ID, accountID, type, toID, fromID;
+    long int Amount;
     struct timestamp{
         int day, month, year, hours, minutes, seconds;
     };
 
 public:
-    
+    Transaction(){
+        cerr<<"Invalid Transaction..!"<<endl;
+    }
+
+    Transaction(string accountID, string type, long int amm){
+        this->ID = this->generateID();
+        this->accountID = accountID;
+        this->type = type;
+        this->Amount = amm;
+    }
+
+    Transaction(string fromID, string toID, string type, long int amm){
+        this->ID = this->generateID();
+        this->fromID = fromID;
+        this->toID = toID;
+        this->type = type;
+        this->Amount = amm;
+    }
+
+    string generateID(){
+        long int id=0;
+        fstream file("/data/LastTransactionID.dat", ios::in|ios::out|ios::binary);
+        file.read(reinterpret_cast<char*>(&id), sizeof(id));
+        if(id)
+            id++;
+        else
+        id = 100000000000;
+        file.write(reinterpret_cast<char*>(&id), sizeof(id));
+        return to_string(id);
+    }
+
     friend bool operator> (Transaction& t1, Transaction& t2){
-        return t1.Ammount > t2.Ammount;
+        return t1.Amount > t2.Amount;
     }
     friend bool operator< (Transaction& t1, Transaction& t2){
-        return t1.Ammount < t2.Ammount;
+        return t1.Amount < t2.Amount;
     }
 };
 
 int main(){
-    
+    Bank SBI("SBIN130045", "State Bank of India");
     return 0;
 }
