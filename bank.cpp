@@ -16,6 +16,10 @@ class Account{
     //TransactionsHistory <vector> - all past transactions
 public:
     friend class Bank;
+    Account(){
+        cerr<<"IFSCE Code of Bank Required"<<endl;
+        exit(1);
+    }
 
     Account(string IFSC):IFSC(IFSC){
         cout<<"Enter Full Name: ";
