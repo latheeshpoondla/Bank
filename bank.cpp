@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <sstream>
 
@@ -34,14 +34,14 @@ public:
     }
 
     string generateID(){
-        fstream file("/data/LastAccountID.dat", ios::in | ios::out | ios::binary);
-        long int ID=0;
+        fstream file("/data/lastAccountID.dat", ios::in | ios::out | ios::binary);
+        long long ID=0LL;
         file.read(reinterpret_cast<char*>(&ID), sizeof(ID));
         
         if(ID)
             ID++;
         else
-            ID = 10000000000;
+            ID = 10000000000LL;
         file.write(reinterpret_cast<const char*>(&ID), sizeof(ID));
         return to_string(ID);
     }
@@ -55,7 +55,8 @@ public:
 };
 
 class Bank{
-    unordered_map<string, Account> accounts;
+    map<string, Account> accounts;
+    map<string, bool> update_ids;
 public:
     string IFSC, Name;
     Bank(){
@@ -81,6 +82,7 @@ public:
         toA.Balance+=amm;
         Transaction t(toID, "Deposit", amm);
         toA.transactionHistory.push_back(t);
+        this->update_ids[toA.ID] = true;
         return true;
     }
 
@@ -114,6 +116,7 @@ public:
         }
         Transaction t(ID, "Withdraw", amm);
         a.transactionHistory.push_back(t);
+        this->update_ids[a.ID] = true;
         return true;
     }
     
@@ -179,12 +182,21 @@ public:
         }
         Transaction t(fromID, toID, "Transfer", amm);
         toA.transactionHistory.push_back(t);
+        this->update_ids[toA.ID] = true;
+        this->update_ids[fromA.ID] = true;
         return true;
     }
     //store all Accounts in files
     //saveData() - (updates accounts.dat with updated map<>)
     void saveData(){
-
+        fstream accfile("data/accounts.dat", ios::in|ios::out|ios::binary);
+        for(const pair p:(this->update_ids)){
+            string id = p.first;
+            long long index = stoll(id)-10000000000LL;
+            accfile.seekp(index*sizeof(Account));
+            accfile.write(reinterpret_cast<char*>(&(this->accounts).at(p.first)), sizeof(Account));
+        }
+        accfile.close();
     }
     //retrieve accounts from file
     //loadData() - (runs the startup for Bank - accounts.dat to map<>) 
@@ -204,6 +216,7 @@ public:
     bool createAccount(){
         Account a(IFSC);
         accounts[a.ID] = a;
+        this->update_ids[a.ID] = true;
         return true;
     }
     //close account
@@ -261,13 +274,13 @@ public:
     }
 
     string generateID(){
-        long int id=0;
+        long long id=0LL;
         fstream file("/data/LastTransactionID.dat", ios::in|ios::out|ios::binary);
         file.read(reinterpret_cast<char*>(&id), sizeof(id));
         if(id)
             id++;
         else
-        id = 100000000000;
+        id = 100000000000LL;
         file.write(reinterpret_cast<char*>(&id), sizeof(id));
         return to_string(id);
     }
